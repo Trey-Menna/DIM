@@ -4,6 +4,9 @@ import { sumBy } from 'app/utils/collections';
 import { DestinyProfileResponse, DestinyProgression } from 'bungie-api-ts/destiny2';
 import { getCharacterProgressions } from './selectors';
 
+//Check when this is being loaded in
+console.log('reputationSelectors loaded');
+
 export interface ResettableReputation {
   progressionHash: number;
   progress: DestinyProgression;
@@ -26,6 +29,8 @@ export function isReputationResetReady(progress: DestinyProgression, defs: D2Man
 
   const rankTotal = sumBy(progressionDef.steps, (step) => step.progressTotal);
 
+  console.log(progressionDef.displayProperties.name, ' ', progress.currentProgress, ' ', rankTotal);
+
   return progress.currentProgress >= rankTotal;
 }
 
@@ -33,6 +38,7 @@ export function getResettableReputations(
   profileInfo: DestinyProfileResponse,
   defs: D2ManifestDefinitions,
 ): ResettableReputation[] {
+  console.log('Checking Reputations...');
   const progressions = getCharacterProgressions(profileInfo)?.progressions ?? {};
 
   return Object.values(progressions)
