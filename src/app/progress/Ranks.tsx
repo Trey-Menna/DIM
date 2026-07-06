@@ -7,6 +7,10 @@ import PursuitGrid from './PursuitGrid';
 import { ReputationRank } from './ReputationRank';
 import { getCharacterProgressions } from './selectors';
 
+//Create new Imports for getResettableReputations
+import { useD2Definitions } from 'app/manifest/selectors';
+import { getResettableReputations } from './reputationSelectors';
+
 // There are 2 similar DestinyProgression definitions for each rank
 // system. The rank progression definition contains detailed rank names and
 // resetInfo, while the streak progression definition contains information about
@@ -64,6 +68,11 @@ export default function Ranks({
 }) {
   const firstCharacterProgression = getCharacterProgressions(profileInfo)?.progressions ?? {};
   const progressionHashes = useSelector(rankProgressionHashesSelector);
+
+  //Run function and log if there are any resetabble reputations
+  const defs = useD2Definitions()!;
+  const resettable = getResettableReputations(profileInfo, defs);
+  console.log('Amount of resettable reputations currently available: ', resettable.length);
 
   return (
     <PursuitGrid ranks>
