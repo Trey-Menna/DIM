@@ -1,14 +1,12 @@
 import { D2ManifestDefinitions } from 'app/destiny2/d2-definitions';
 import { unadvertisedResettableVendors } from 'app/search/d2-known-values';
 import { sumBy } from 'app/utils/collections';
-import { DestinyProfileResponse, DestinyProgression } from 'bungie-api-ts/destiny2';
-import { getCharacterProgressions } from './selectors';
-
-//Check when this is being loaded in
-console.log('reputationSelectors loaded');
+import { DestinyProgression } from 'bungie-api-ts/destiny2';
 
 export interface ResettableReputation {
   progressionHash: number;
+  name: string;
+  icon?: string;
   progress: DestinyProgression;
 }
 
@@ -29,29 +27,32 @@ export function isReputationResetReady(progress: DestinyProgression, defs: D2Man
 
   const rankTotal = sumBy(progressionDef.steps, (step) => step.progressTotal);
 
-  console.log(progressionDef.displayProperties.name, ' ', progress.currentProgress, ' ', rankTotal);
+  console.log({
+    vendor: progressionDef.displayProperties.name,
+    level: progress.level,
+    currentProgress: progress.currentProgress,
+    progressToNextLevel: progress.progressToNextLevel,
+    nextLevelAt: progress.nextLevelAt,
+    currentResetCount: progress.currentResetCount,
+  });
 
   return progress.currentProgress >= rankTotal;
 }
 
 export function getResettableReputations(
-  profileInfo: DestinyProfileResponse,
+  progressions: Record<number, DestinyProgression>,
   defs: D2ManifestDefinitions,
 ): ResettableReputation[] {
-  console.log('Checking Reputations...');
-  const progressions = getCharacterProgressions(profileInfo)?.progressions ?? {};
-
   return Object.values(progressions)
     .filter((progress) => isReputationResetReady(progress, defs))
-    .map((progress) => ({
-      progressionHash: progress.progressionHash,
-      progress,
-    }));
-}
+    .map((progress) => {
+      const progressionDef = defs.Progression.get(progress.progressionHash);
 
-export function hasResettableReputation(
-  profileInfo: DestinyProfileResponse,
-  defs: D2ManifestDefinitions,
-) {
-  return getResettableReputations(profileInfo, defs).length > 0;
+      return {
+        progressionHash: progress.progressionHash,
+        name: progressionDef.displayProperties.name,
+        icon: progressionDef.displayProperties.icon,
+        progress,
+      };
+    });
 }
