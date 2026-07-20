@@ -1,14 +1,14 @@
-import { useEffect } from 'react';
-import { useSelector } from 'react-redux';
-
+import { getResettableReputations } from 'app/destiny2/reputation';
 import { profileResponseSelector } from 'app/inventory/selectors';
 import { useD2Definitions } from 'app/manifest/selectors';
-
-import { getResettableReputations } from 'app/destiny2/reputation';
+import { showNotification } from 'app/notifications/notifications';
+import { useEffect, useRef } from 'react';
+import { useSelector } from 'react-redux';
 
 export default function ReputationResetNotifier() {
   const defs = useD2Definitions();
   const profileInfo = useSelector(profileResponseSelector);
+  const notificationShown = useRef(false);
 
   const characterId = profileInfo?.characterProgressions?.data
     ? Object.keys(profileInfo.characterProgressions.data)[0]
@@ -26,7 +26,17 @@ export default function ReputationResetNotifier() {
 
     const resettable = getResettableReputations(progressions, defs);
 
-    console.log('Resettable reputations:', resettable);
+    if (resettable.length > 0 && !notificationShown.current) {
+      notificationShown.current = true;
+
+      //Could show what reputations can be rest by replacing body with, resettable.map((r) => r.name).join(', ')
+      showNotification({
+        type: 'warning',
+        title: 'Reputation Reset Available',
+        body: `You have ${resettable.length} reputation track${resettable.length > 1 ? 's' : ''} ready to reset.`,
+        duration: 10000,
+      });
+    }
   }, [defs, progressions]);
 
   return null;
