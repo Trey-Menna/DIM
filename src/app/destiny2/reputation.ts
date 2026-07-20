@@ -27,15 +27,6 @@ export function isReputationResetReady(progress: DestinyProgression, defs: D2Man
 
   const rankTotal = sumBy(progressionDef.steps, (step) => step.progressTotal);
 
-  console.log({
-    vendor: progressionDef.displayProperties.name,
-    level: progress.level,
-    currentProgress: progress.currentProgress,
-    progressToNextLevel: progress.progressToNextLevel,
-    nextLevelAt: progress.nextLevelAt,
-    currentResetCount: progress.currentResetCount,
-  });
-
   return progress.currentProgress >= rankTotal;
 }
 
