@@ -29,11 +29,12 @@ export default function ReputationResetNotifier() {
     if (resettable.length > 0 && !notificationShown.current) {
       notificationShown.current = true;
 
-      //Could show what reputations can be rest by replacing body with, resettable.map((r) => r.name).join(', ')
+      //Could show number of reputations that can be rest by replacing body with
+      // `You have ${resettable.length} reputation track${resettable.length > 1 ? 's' : ''} ready to reset.`
       showNotification({
         type: 'warning',
         title: 'Reputation Reset Available',
-        body: `You have ${resettable.length} reputation track${resettable.length > 1 ? 's' : ''} ready to reset.`,
+        body: resettable.map((r) => r.name).join(', '),
         duration: 10000,
       });
     }
